@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:intl/intl.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:weatherbet/app/controller/controller.dart';
