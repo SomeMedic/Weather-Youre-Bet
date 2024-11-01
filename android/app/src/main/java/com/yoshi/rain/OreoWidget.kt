@@ -1,4 +1,4 @@
-package com.weather.yourbet
+package com.azph.pkzf.g
 
 import android.appwidget.AppWidgetManager
 import android.content.Context

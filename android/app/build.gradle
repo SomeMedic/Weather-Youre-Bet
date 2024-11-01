@@ -11,7 +11,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = 'com.weather.yourbet'
+    namespace = 'com.azph.pkzf.g'
     compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
@@ -36,7 +36,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = 'com.weather.yourbet'
+        applicationId = 'com.azph.pkzf.g'
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

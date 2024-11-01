@@ -648,7 +648,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     name: androidWidgetName,
                                     androidName: androidWidgetName,
                                     qualifiedAndroidName:
-                                        'com.weather.yourbet.OreoWidget',
+                                        'com.azph.pkzf.g.OreoWidget',
                                   );
                                 },
                               ),
