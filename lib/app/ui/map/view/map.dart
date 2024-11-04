@@ -52,6 +52,11 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   final _focusNode = FocusNode();
   late final TextEditingController _controllerSearch = TextEditingController();
 
+  // Добавляем контроллер для лайдера
+  double _currentZoom = 8.0;
+  static const double _minZoom = 3.0;
+  static const double _maxZoom = 18.0;
+
   static Future<CacheStore> _getCacheStore() async {
     final dir = await getTemporaryDirectory();
     return FileCacheStore('${dir.path}${Platform.pathSeparator}MapTiles');
@@ -250,6 +255,74 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     });
   }
 
+  Widget _buildZoomControls() {
+    return Positioned(
+      right: 5,
+      top: 120,
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.theme.cardColor.withOpacity(0.5), // Полупрозрачный фон
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: SizedBox(
+          height: 350,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  IconsaxPlusLinear.search_zoom_in,
+                  size: 20,
+                  color: context.theme.iconTheme.color?.withOpacity(0.5), // Полупрозрачная иконка
+                ),
+                Expanded(
+                  child: RotatedBox(
+                    quarterTurns: 3,
+                    child: Slider(
+                      value: _currentZoom,
+                      min: _minZoom,
+                      max: _maxZoom,
+                      onChanged: (value) {
+                        setState(() {
+                          _currentZoom = value;
+                          _animatedMapController.mapController.move(
+                            _animatedMapController.mapController.camera.center,
+                            value,
+                          );
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                Icon(
+                  IconsaxPlusLinear.search_zoom_out_1,
+                  size: 20,
+                  color: context.theme.iconTheme.color?.withOpacity(0.5), // Полупрозрачная иконка
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeButton() {
+    return Positioned(
+      right: 16,
+      bottom: _isCardVisible ? 180 : 16, // Уменьшили отступ снизу
+      child: FloatingActionButton(
+        heroTag: null,
+        child: const Icon(IconsaxPlusLinear.home_2),
+        onPressed: () => _resetMapOrientation(
+          center: LatLng(weatherController.location.lat!, weatherController.location.lon!),
+          zoom: 8,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mainLocation = weatherController.location;
@@ -304,27 +377,16 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   if (_isDarkMode)
                     ColorFiltered(
                       colorFilter: const ColorFilter.matrix(<double>[
-                        -0.2, -0.7, -0.08, 0, 255, // Red channel
-                        -0.2, -0.7, -0.08, 0, 255, // Green channel
-                        -0.2, -0.7, -0.08, 0, 255, // Blue channel
-                        0, 0, 0, 1, 0, // Alpha channel
+                        -0.2, -0.7, -0.08, 0, 255,
+                        -0.2, -0.7, -0.08, 0, 255,
+                        -0.2, -0.7, -0.08, 0, 255,
+                        0, 0, 0, 1, 0,
                       ]),
                       child: _buildMapTileLayer(cacheStore),
                     )
                   else
                     _buildMapTileLayer(cacheStore),
-                  _buildHeatmapLayer(), // Добавляем новый слой
-                  RichAttributionWidget(
-                    animationConfig: const ScaleRAWA(),
-                    alignment: AttributionAlignment.bottomLeft,
-                    attributions: [
-                      TextSourceAttribution(
-                        'OpenStreetMap contributors',
-                        onTap: () => weatherController
-                            .urlLauncher('https://openstreetmap.org/copyright'),
-                      ),
-                    ],
-                  ),
+                  _buildHeatmapLayer(),
                   Obx(() {
                     final mainMarker = _buildMainLocationMarker(
                       WeatherCard.fromJson({
@@ -344,50 +406,14 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       markers: [mainMarker, ...cardMarkers],
                     );
                   }),
-                  ExpandableFab(
-                    key: _fabKey,
-                    pos: ExpandableFabPos.right,
-                    type: ExpandableFabType.up,
-                    distance: 70,
-                    openButtonBuilder: RotateFloatingActionButtonBuilder(
-                      child: const Icon(IconsaxPlusLinear.menu),
-                      fabSize: ExpandableFabSize.regular,
-                    ),
-                    closeButtonBuilder: DefaultFloatingActionButtonBuilder(
-                      child: const Icon(Icons.close),
-                      fabSize: ExpandableFabSize.regular,
-                    ),
-                    children: [
-                      FloatingActionButton(
-                        heroTag: null,
-                        child: const Icon(IconsaxPlusLinear.home_2),
-                        onPressed: () => _resetMapOrientation(
-                            center:
-                                LatLng(mainLocation.lat!, mainLocation.lon!),
-                            zoom: 8),
-                      ),
-                      FloatingActionButton(
-                        heroTag: null,
-                        child: const Icon(IconsaxPlusLinear.search_zoom_out_1),
-                        onPressed: () => _animatedMapController.animatedZoomOut(
-                          customId: _useTransformer ? _useTransformerId : null,
-                        ),
-                      ),
-                      FloatingActionButton(
-                        heroTag: null,
-                        child: const Icon(IconsaxPlusLinear.search_zoom_in),
-                        onPressed: () => _animatedMapController.animatedZoomIn(
-                          customId: _useTransformer ? _useTransformerId : null,
-                        ),
-                      ),
-                    ],
-                  ),
                   Positioned(
                     left: 0,
                     right: 0,
                     bottom: 0,
                     child: _buildWeatherCard(),
                   ),
+                  _buildZoomControls(),
+                  _buildHomeButton(),
                 ],
               ),
               RawAutocomplete<Result>(

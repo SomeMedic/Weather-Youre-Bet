@@ -57,6 +57,10 @@ dependencies:
   isar_flutter_libs:
     version: ^3.1.8
     hosted: https://pub.isar-community.dev/
+  flutter_compass: ^0.6.0
+  model_viewer_plus: ^1.7.0
+  lottie: ^2.7.0
+  audioplayers: ^5.2.1
 
 
 dev_dependencies:
@@ -87,8 +91,12 @@ flutter_native_splash:
 flutter:
   generate: false
   uses-material-design: true
-
+ 
   assets:
     - assets/
     - assets/images/
     - assets/icons/
+    - assets/models/pet.glb
+    - assets/html/model_viewer.html
+    - assets/animations/
+    - assets/sounds/
